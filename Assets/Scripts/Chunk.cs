@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -60,45 +60,48 @@ public class Chunk : MonoBehaviour
 
         for (int x = 0; x < chunkSizeX; x++)
         {
-            for (int y = 0; y < chunkSizeY; y++)
+            for (int z = 0; z < chunkSizeZ; z++)
             {
-                for (int z = 0; z < chunkSizeZ; z++)
+                float wx = (x + chunkX * chunkSizeX);
+                float wz = (z + chunkZ * chunkSizeZ);
+
+                float heightNoise = Mathf.PerlinNoise(wx * scale, wz * scale);
+                int height = Mathf.FloorToInt(heightNoise * maxHeight);
+
+                float canyonNoise = Mathf.PerlinNoise(wx * scale * 1f, wz * scale * 1f);
+
+                // transform canyon noise into a 0–1 "carve mask"
+                // where 1 = canyon center, 0 = normal terrain
+                canyonNoise = Mathf.Abs(canyonNoise - 0.5f) * 2f; // 0 at edges, 1 in center
+                canyonNoise = 1f - canyonNoise; // invert so canyons = high value
+                canyonNoise = Mathf.Pow(canyonNoise, 3f);
+                float canyonDepth = canyonNoise * 40f; // how deep canyons go (adjust this)
+                height -= Mathf.FloorToInt(canyonDepth);
+                height = Mathf.Clamp(height, 0, chunkSizeY - 1);
+
+                // fill column
+                for (int y = 0; y < chunkSizeY; y++)
                 {
-
-                    int height = Mathf.FloorToInt(
-                        Mathf.PerlinNoise(
-                            (x + chunkX * chunkSizeX) * scale,
-                            (z + chunkZ * chunkSizeX) * scale
-                        ) * maxHeight
-                    );
-
-
-
-
-                    
-
-                    if (y < height)
-                    {
-                        blocks[x, y, z] = BlockType.Dirt;
-                    }
-                    else
-                    {
-                        blocks[x, y, z] = BlockType.Air;
-                    }
-
                     if (y < height - 10)
-                    {
                         blocks[x, y, z] = BlockType.Stone;
-                    }
-
-                    if (y == height)
+                    else if (y < height)
+                        blocks[x, y, z] = BlockType.Dirt;
+                    else if (y == height)
                     {
                         blocks[x, y, z] = BlockType.Grass;
+                    
+                        if(height == 0)
+                        {
+                            blocks[x, y, z] = BlockType.Stone;
+                        }
                     }
+                    else
+                        blocks[x, y, z] = BlockType.Air;
                 }
             }
         }
     }
+
 
     public void GenerateMesh()
     {

@@ -474,6 +474,7 @@ MonoBehaviour:
   acceleration: 20
   maxSpeed: 25
   damping: 5
+  verticalSmooth: 3
   turnSpeed: 60
   tiltAngle: 15
   tiltSmooth: 5
@@ -485,6 +486,7 @@ MonoBehaviour:
   projectileSpeed: 50
   fireCooldown: 0.2
   rammingSound: {fileID: 8300000, guid: 7b0711db511d23e41883139f3ca55ccf, type: 3}
+  currentMapLayer: 0
 --- !u!65 &463392309
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5385,7 +5387,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: f73d68ec70e64cf438abb1b64c6f7d3c, type: 2}
   - {fileID: 2100000, guid: d9ccceaa33026a346a88f214770b8202, type: 2}
   - {fileID: 2100000, guid: 065c73df19794274cb606f8dfb4a2764, type: 2}
-  scale: 0.01
+  scale: 0.02
   player: {fileID: 463392306}
 --- !u!1 &705507993
 GameObject:

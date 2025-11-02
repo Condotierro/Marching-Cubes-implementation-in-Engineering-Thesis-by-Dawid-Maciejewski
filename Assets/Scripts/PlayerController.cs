@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     public float reachDistance = 5f;
 
     [Header("Ground Check")]
-    public Collider groundCheckCollider; // child object at feet
+    public Collider groundCheckCollider; 
 
     private Rigidbody rb;
     private float pitch = 0f;
@@ -39,12 +39,11 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
         {
             Vector3 vel = rb.velocity;
-            vel.y = 0f; // reset vertical velocity
+            vel.y = 0f; 
             rb.velocity = vel;
             rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
         }
 
-        // Block interaction
         if (Input.GetMouseButtonDown(0)) MineBlock();
         if (Input.GetMouseButtonDown(1)) PlaceBlock();
     }
@@ -62,7 +61,6 @@ public class PlayerController : MonoBehaviour
         Vector3 move = (transform.right * h + transform.forward * v) * walkSpeed * Time.fixedDeltaTime;
         Vector3 targetPosition = rb.position + move;
 
-        // Preserve vertical velocity
         rb.MovePosition(targetPosition + Vector3.up * rb.velocity.y * Time.fixedDeltaTime);
     }
 
@@ -78,7 +76,6 @@ public class PlayerController : MonoBehaviour
         transform.Rotate(Vector3.up * mouseX);
     }
 
-    // ---------------- Ground Check ----------------
     void OnTriggerEnter(Collider other)
     {
         if (other != groundCheckCollider && other != this.GetComponent<Collider>())

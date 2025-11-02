@@ -75,7 +75,7 @@ public class Chunk : MonoBehaviour
                 canyonNoise = Mathf.Abs(canyonNoise - 0.5f) * 2f; // 0 at edges, 1 in center
                 canyonNoise = 1f - canyonNoise; // invert so canyons = high value
                 canyonNoise = Mathf.Pow(canyonNoise, 3f);
-                float canyonDepth = canyonNoise * 40f; // how deep canyons go (adjust this)
+                float canyonDepth = canyonNoise * 40f; // how deep canyons go 
                 height -= Mathf.FloorToInt(canyonDepth);
                 height = Mathf.Clamp(height, 0, chunkSizeY - 1);
 

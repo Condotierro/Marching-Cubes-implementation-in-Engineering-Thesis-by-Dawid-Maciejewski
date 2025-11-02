@@ -14,12 +14,12 @@ public class World : MonoBehaviour
 
     void Start()
     {
-        UpdateChunks(); // initial chunk generation
+        UpdateChunks(); 
     }
 
     void Update()
     {
-        UpdateChunks(); // continuously update based on player position
+        UpdateChunks(); 
     }
 
     void UpdateChunks()

@@ -58,7 +58,6 @@ public class ShipController : MonoBehaviour
 
     void HandleMovement()
     {
-        // Input directions
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
         float ascend = 0f;
@@ -68,17 +67,13 @@ public class ShipController : MonoBehaviour
         else if (Input.GetKey(KeyCode.LeftControl))
             ascend = -1f;
 
-        // Calculate movement direction relative to ship orientation
         Vector3 moveDir = (transform.forward * v) + (transform.right * h) + (transform.up * ascend);
 
-        // Smooth acceleration
         rb.AddForce(moveDir.normalized * acceleration, ForceMode.Acceleration);
 
-        // Cap the speed
         if (rb.velocity.magnitude > maxSpeed)
             rb.velocity = rb.velocity.normalized * maxSpeed;
 
-        // Apply a bit of manual damping for smoother deceleration
         if (moveDir.magnitude < 0.1f)
             rb.velocity = Vector3.Lerp(rb.velocity, Vector3.zero, damping * Time.fixedDeltaTime);
 
@@ -127,10 +122,9 @@ public class ShipController : MonoBehaviour
     }
     void HandleVoxelCollision(Chunk chunk, Vector3 hitPoint)
     {
-        // Convert world hit position to local chunk space
         Vector3 localPos = hitPoint - chunk.transform.position;
 
-        int radius = 2; // Radius of destruction (adjust for effect)
+        int radius = 2; 
         int cx = Mathf.FloorToInt(localPos.x);
         int cy = Mathf.FloorToInt(localPos.y);
         int cz = Mathf.FloorToInt(localPos.z);

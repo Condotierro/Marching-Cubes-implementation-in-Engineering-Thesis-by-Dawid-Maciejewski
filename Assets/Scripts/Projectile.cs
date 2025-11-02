@@ -10,8 +10,8 @@ public class Projectile : MonoBehaviour
     public float hitForce = 5f;
 
     [Header("Explosion FX")]
-    public GameObject explosionPrefab; // assign a particle prefab in Inspector
-    public AudioClip explosionSound;   // optional sound clip
+    public GameObject explosionPrefab; 
+    public AudioClip explosionSound;   
     public float explosionVolume = 0.8f;
 
     private Rigidbody rb;
@@ -26,7 +26,6 @@ public class Projectile : MonoBehaviour
 
         rb.velocity = transform.forward * speed;
 
-        // optional AudioSource for sound playback
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.spatialBlend = 1f; // 3D sound
         audioSource.playOnAwake = false;
@@ -39,29 +38,24 @@ public class Projectile : MonoBehaviour
         Vector3 hitPoint = collision.contacts[0].point;
         Quaternion hitRotation = Quaternion.LookRotation(collision.contacts[0].normal);
 
-        // Physics impact
         if (collision.rigidbody != null)
             collision.rigidbody.AddForce(-collision.contacts[0].normal * hitForce, ForceMode.Impulse);
 
-        // Voxel destruction
         Chunk chunk = collision.collider.GetComponentInParent<Chunk>();
         if (chunk != null)
             DestroyVoxel(chunk, hitPoint);
 
-        // Spawn explosion FX
         if (explosionPrefab != null)
         {
             GameObject explosion = Instantiate(explosionPrefab, hitPoint, hitRotation);
             Destroy(explosion, 1f);
         }
 
-        // Play sound
         if (explosionSound != null)
         {
             AudioSource.PlayClipAtPoint(explosionSound, hitPoint, explosionVolume);
         }
 
-        // Destroy projectile itself
         Destroy(gameObject);
     }
 

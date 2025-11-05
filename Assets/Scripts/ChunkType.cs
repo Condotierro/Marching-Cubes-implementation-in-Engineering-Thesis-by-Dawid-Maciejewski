@@ -1,11 +1,20 @@
 public enum ChunkType
 {
     Start,
-    Straight,
     TurnLeftStart,
     TurnLeftEnd,
     TurnRightStart,
     TurnRightEnd,
-    End,
-    Plain
+    StraightZ,   
+    StraightX,
+
+    RejoinFromRightStart,
+    RejoinFromRightEnd,
+    RejoinFromLeftStart,
+    RejoinFromLeftEnd,
+    RejoinFromBackStart,
+    RejoinFromBackEnd,
+
+    Plain,
+    End
 }

@@ -5381,7 +5381,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb0715a5d50f0414a825a3936d3b2043, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 2
+  renderDistance: 3
   materials:
   - {fileID: 2100000, guid: f73d68ec70e64cf438abb1b64c6f7d3c, type: 2}
   - {fileID: 2100000, guid: d9ccceaa33026a346a88f214770b8202, type: 2}

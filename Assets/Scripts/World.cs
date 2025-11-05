@@ -91,13 +91,16 @@ public class World : MonoBehaviour
         ChunkType type = GetChunkTypeForPosition(cx, cz);
         chunk.SetChunkType(type);
 
-        if(type == ChunkType.Start)
+        if(type == ChunkType.Start && onlyPlacePlayerOnce)
         {
-            player.position = new Vector3(cx * 32 + 16, player.position.y, cz * 32 + 16); Debug.Log("SCA");
+            onlyPlacePlayerOnce = false;
+            player.position = new Vector3(cx * 32 + 16, player.position.y, cz * 32 + 16);
         }
 
         chunks[new Vector2Int(cx, cz)] = chunk;
     }
+
+    bool onlyPlacePlayerOnce = true;
 
     ChunkType GetChunkTypeForPosition(int cx, int cz)
     {
@@ -112,12 +115,24 @@ public class World : MonoBehaviour
                 switch (seg.Type)
                 {
                     case PathGenerator.TileType.Start: return ChunkType.Start;
-                    case PathGenerator.TileType.Straight: return ChunkType.Straight;
+                    case PathGenerator.TileType.End: return ChunkType.End;
+
+                    case PathGenerator.TileType.StraightX: return ChunkType.StraightX;
+                    case PathGenerator.TileType.StraightZ: return ChunkType.StraightZ;
+
                     case PathGenerator.TileType.TurnLeftStart: return ChunkType.TurnLeftStart;
                     case PathGenerator.TileType.TurnLeftEnd: return ChunkType.TurnLeftEnd;
                     case PathGenerator.TileType.TurnRightStart: return ChunkType.TurnRightStart;
                     case PathGenerator.TileType.TurnRightEnd: return ChunkType.TurnRightEnd;
-                    case PathGenerator.TileType.End: return ChunkType.End;
+
+                    case PathGenerator.TileType.RejoinFromRightStart: return ChunkType.RejoinFromRightStart;
+                    case PathGenerator.TileType.RejoinFromRightEnd: return ChunkType.RejoinFromRightEnd;
+
+                    case PathGenerator.TileType.RejoinFromLeftStart: return ChunkType.RejoinFromLeftStart;
+                    case PathGenerator.TileType.RejoinFromLeftEnd: return ChunkType.RejoinFromLeftEnd;
+
+                    case PathGenerator.TileType.RejoinFromBackStart: return ChunkType.RejoinFromBackStart;
+                    case PathGenerator.TileType.RejoinFromBackEnd: return ChunkType.RejoinFromBackEnd;
                 }
             }
         }

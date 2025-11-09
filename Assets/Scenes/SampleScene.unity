@@ -537,9 +537,9 @@ GameObject:
   - component: {fileID: 463392305}
   - component: {fileID: 463392304}
   - component: {fileID: 463392302}
-  - component: {fileID: 463392307}
   - component: {fileID: 463392308}
   - component: {fileID: 463392309}
+  - component: {fileID: 463392310}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -642,24 +642,6 @@ Transform:
   - {fileID: 9019313}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &463392307
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 463392301}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ec7db6bd259b9f47a6feb47acebba08, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  walkSpeed: 5
-  jumpForce: 5
-  lookSpeed: 2
-  playerCamera: {fileID: 963194227}
-  reachDistance: 5
-  groundCheckCollider: {fileID: 2092418036}
 --- !u!114 &463392308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -688,7 +670,7 @@ MonoBehaviour:
   fireCooldown: 0.2
   rammingSound: {fileID: 8300000, guid: 7b0711db511d23e41883139f3ca55ccf, type: 3}
   currentMapLayer: 0
-  health: 100
+  health: {fileID: 463392310}
 --- !u!65 &463392309
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -710,6 +692,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.8, y: 1.1379814, z: 5.1351304}
   m_Center: {x: 0, y: 0, z: 0.36079144}
+--- !u!114 &463392310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 463392301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e38c6a21ba5e2664f9570a6166aa199a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  healthSlider: {fileID: 235643094}
 --- !u!1 &501397759
 GameObject:
   m_ObjectHideFlags: 0
@@ -5664,7 +5661,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: f73d68ec70e64cf438abb1b64c6f7d3c, type: 2}
   - {fileID: 2100000, guid: d9ccceaa33026a346a88f214770b8202, type: 2}
   - {fileID: 2100000, guid: 065c73df19794274cb606f8dfb4a2764, type: 2}
-  scale: 0.02
+  scale: 0.01
   player: {fileID: 463392306}
 --- !u!1 &705507993
 GameObject:
@@ -10884,8 +10881,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 181.36096, y: 106.70256}
-  m_SizeDelta: {x: 361.722, y: 214.4051}
+  m_AnchoredPosition: {x: 180.86, y: 127.6}
+  m_SizeDelta: {x: 361.722, y: 255.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1740593635
 MonoBehaviour:
@@ -10916,7 +10913,9 @@ MonoBehaviour:
     ctrl
     - descend
 
-    space - ascend'
+    o - ascend one level
+
+    p - descend one level'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

@@ -43,8 +43,10 @@ public class ShipController : MonoBehaviour
     }
 
     public const float TopHeight = 50;
-    public const float MediumHeight = 30;
-    public const float BottomHeight = 10;
+    public const float MediumHeight = 35;
+    public const float BottomHeight = 20;
+
+    public PlayerHealth health;
 
     void Start()
     {
@@ -107,6 +109,12 @@ public class ShipController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             LowerLayer();
+        }
+
+        if(health.currentHealth <= 0)
+        {
+            rb.useGravity = true;
+            this.gameObject.GetComponent<ShipController>().enabled = false;
         }
     }
 
@@ -225,8 +233,8 @@ public class ShipController : MonoBehaviour
             audioSource.clip = rammingSound;
             audioSource.Play();
         }
-            
-        
+
+        health.TakeDamage(5f);
 
         chunk.GenerateMesh();
         chunk.UpdateCollider();
@@ -247,6 +255,8 @@ public class ShipController : MonoBehaviour
                 {
                     prb.velocity = firePoint.forward * projectileSpeed;
                 }
+
+                health.TakeDamage(1f);
             }
         }
     }

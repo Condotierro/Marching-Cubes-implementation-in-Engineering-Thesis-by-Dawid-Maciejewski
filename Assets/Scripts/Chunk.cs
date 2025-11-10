@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Chunk : MonoBehaviour
@@ -25,9 +26,17 @@ public class Chunk : MonoBehaviour
         meshRenderer = gameObject.AddComponent<MeshRenderer>();
 
         meshRenderer.materials = materials;
+        StartCoroutine(GenerateChunkCoroutine());
+        
+    }
 
+    IEnumerator GenerateChunkCoroutine()
+    {
+        yield return null;
         GenerateBlocks();
+        yield return null;
         GenerateMesh();
+        yield return null;
         AddCollider();
     }
 

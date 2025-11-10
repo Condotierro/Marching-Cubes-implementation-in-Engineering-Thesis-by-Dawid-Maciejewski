@@ -14,11 +14,6 @@ public class ShipController : MonoBehaviour
     public float tiltAngle = 15f;
     public float tiltSmooth = 5f;
 
-    [Header("Camera")]
-    public Transform shipCamera;
-    public Vector3 cameraOffset = new Vector3(0, 3, -8);
-    public float cameraFollowSpeed = 5f;
-
     private Rigidbody rb;
     private float currentTilt = 0f;
 
@@ -57,17 +52,6 @@ public class ShipController : MonoBehaviour
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.spatialBlend = 1f; // 3D sound
         audioSource.playOnAwake = false;
-    }
-
-    void SwitchLayer()
-    {
-        currentMapLayer = currentMapLayer switch
-        {
-            MapLayer.Bottom => MapLayer.Medium,
-            MapLayer.Medium => MapLayer.Top,
-            MapLayer.Top => MapLayer.Bottom,
-            _ => currentMapLayer
-        };
     }
 
     void LowerLayer()
@@ -121,7 +105,6 @@ public class ShipController : MonoBehaviour
     {
         HandleMovement();
         HandleRotation();
-        UpdateCamera();
     }
 
     void HandleMovement()
@@ -175,17 +158,6 @@ public class ShipController : MonoBehaviour
         float targetTilt = -Input.GetAxis("Horizontal") * tiltAngle;
         currentTilt = Mathf.Lerp(currentTilt, targetTilt, Time.fixedDeltaTime * tiltSmooth);
         transform.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y, currentTilt);
-    }
-
-    void UpdateCamera()
-    {
-        if (!shipCamera) return;
-
-        Vector3 desiredPos = transform.TransformPoint(cameraOffset);
-        shipCamera.position = Vector3.Lerp(shipCamera.position, desiredPos, Time.deltaTime * cameraFollowSpeed);
-
-        Quaternion desiredRot = Quaternion.LookRotation(transform.position + transform.forward * 10f - shipCamera.position, Vector3.up);
-        shipCamera.rotation = Quaternion.Lerp(shipCamera.rotation, desiredRot, Time.deltaTime * cameraFollowSpeed);
     }
 
     void OnCollisionEnter(Collision collision)

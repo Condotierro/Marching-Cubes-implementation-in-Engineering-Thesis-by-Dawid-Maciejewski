@@ -571,7 +571,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!23 &463392304
@@ -661,9 +661,6 @@ MonoBehaviour:
   turnSpeed: 60
   tiltAngle: 15
   tiltSmooth: 5
-  shipCamera: {fileID: 0}
-  cameraOffset: {x: 0, y: 6, z: -12}
-  cameraFollowSpeed: 5
   projectilePrefab: {fileID: 4100603652522241730, guid: f9bd59234821ebb4db4c269fc2624bac, type: 3}
   firePoint: {fileID: 9019313}
   projectileSpeed: 50
@@ -5629,7 +5626,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &592003931
 Transform:
   m_ObjectHideFlags: 0
@@ -5681,6 +5678,9 @@ MonoBehaviour:
   turnChance: 0.15
   turnAngle: 0.61086524
   maxSamplesPerChunk: 64
+  offshootChance: 0.08
+  offshootStrength: 12
+  offshootLength: 5
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,4 +1,3 @@
-using System.Threading;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]

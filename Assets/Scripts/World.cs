@@ -12,12 +12,6 @@ public class World : MonoBehaviour
 
     private Dictionary<Vector2Int, Chunk> chunks = new Dictionary<Vector2Int, Chunk>();
 
-    void Start()
-    {
-        UpdateChunks();
-    }
-
-
     void Update()
     {
         UpdateChunks();
@@ -79,14 +73,6 @@ public class World : MonoBehaviour
 
         chunkObj.transform.position = new Vector3(cx * Chunk.chunkSizeX, 0, cz * Chunk.chunkSizeZ);
 
-        //if(onlyPlacePlayerOnce)
-        //{
-        //    onlyPlacePlayerOnce = false;
-        //    player.position = new Vector3(cx * 32 + 16, player.position.y, cz * 32 + 16);
-        //}
-
         chunks[new Vector2Int(cx, cz)] = chunk;
     }
-
-    bool onlyPlacePlayerOnce = true;
 }

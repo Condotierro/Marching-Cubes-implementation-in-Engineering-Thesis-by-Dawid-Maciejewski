@@ -19,7 +19,7 @@ public class TunnelPath : MonoBehaviour
     private Vector2 direction = Vector2.up; // initial forward direction
     private Vector2 head = Vector2.zero;
 
-    // Max angle from global forward (Z axis)
+    // max angle from global forward (Z axis)
     private float maxDeviation = 45f * Mathf.Deg2Rad;
 
     void Awake()
@@ -40,14 +40,12 @@ public class TunnelPath : MonoBehaviour
                 float sign = Random.value < 0.5f ? -1 : 1;
                 float angle = turnAngle * sign;
 
-                // Rotate direction
                 Vector2 newDir = new Vector2(
                     direction.x * Mathf.Cos(angle) - direction.y * Mathf.Sin(angle),
                     direction.x * Mathf.Sin(angle) + direction.y * Mathf.Cos(angle)
                 ).normalized;
 
-                // Clamp angle relative to global forward (Z)
-                float globalAngle = Mathf.Atan2(newDir.x, newDir.y); // angle from Z axis
+                float globalAngle = Mathf.Atan2(newDir.x, newDir.y);
                 globalAngle = Mathf.Clamp(globalAngle, -maxDeviation, maxDeviation);
 
                 direction = new Vector2(Mathf.Sin(globalAngle), Mathf.Cos(globalAngle));
@@ -91,7 +89,6 @@ public class TunnelPath : MonoBehaviour
 
         List<Vector2> samples = new List<Vector2>();
 
-        // Estimate the total path length in the chunk
         float chunkDiag = new Vector2(chunkSizeX, chunkSizeZ).magnitude;
         float step = chunkDiag / maxSamplesPerChunk;
 

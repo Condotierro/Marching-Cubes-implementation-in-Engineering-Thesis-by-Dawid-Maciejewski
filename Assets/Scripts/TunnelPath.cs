@@ -17,43 +17,49 @@ public class TunnelPath : MonoBehaviour
     private Vector2 head = Vector2.zero;
 
     // branching control
-    public float branchChance = 0.05f; // chance to start a loop
+    public float branchChance = 0.05f;
     private bool branchActive = false;
     private Vector2 branchDir;
-    private int rejoinIndexOffset = 40; // how far ahead along main path to reconnect
+    private int rejoinIndexOffset = 40;
     private int rejoinTargetIndex = -1;
 
     private float maxDeviation = 45f * Mathf.Deg2Rad;
 
-    public float minBranchLength = 50f;     // how far branch must travel before returning
+    public float minBranchLength = 50f;
     public float minSideDistance = 25f;
     private Vector2 branchStart;
-
 
     private int lastRejoinNodeCount = 0;
     public int branchCooldownNodes = 80;
 
     private float branchAccumulator = 0f;
     public float branchProbabilityIncrease = 0.003f;
+
+    // spatial binning
+    private Dictionary<Vector2Int, List<Vector2>> nodeBuckets = new Dictionary<Vector2Int, List<Vector2>>();
+    public int bucketSize = 64;
+
     void Awake()
     {
         Instance = this;
         mainNodes.Add(head);
+        AddNodeToBucket(head);
     }
 
     public void EnsureLengthUpTo(float targetWorldZ)
     {
         while (head.y < targetWorldZ + 64f)
         {
-            // accumulate chance over time
+            // accumulate branch probability
             branchAccumulator += branchProbabilityIncrease;
 
+            // --- check if we should start a new branch
             if (!branchActive
                 && branchAccumulator >= Random.value
                 && mainNodes.Count > rejoinIndexOffset * 2
                 && mainNodes.Count - lastRejoinNodeCount > branchCooldownNodes)
             {
-                branchAccumulator = 0f; // reset chance when starting a branch
+                branchAccumulator = 0f;
 
                 branchActive = true;
                 branchNodes = new List<Vector2>();
@@ -63,20 +69,21 @@ public class TunnelPath : MonoBehaviour
                 rejoinTargetIndex = Mathf.Clamp(mainNodes.Count - 1 + rejoinIndexOffset, 0, mainNodes.Count - 1);
             }
 
-
-            // Always grow main path
+            // --- grow main path
             direction = ApplyRandomTurnWithClamping(direction);
             head += direction * stepLength;
             mainNodes.Add(head);
+            AddNodeToBucket(head); // ADD to spatial bin
 
-            // Grow branch path if active
+            // --- grow branch path if active
             if (branchActive)
             {
                 branchDir = ApplyBranchSteering(branchDir);
                 Vector2 branchHead = branchNodes[branchNodes.Count - 1] + branchDir * stepLength;
                 branchNodes.Add(branchHead);
+                AddNodeToBucket(branchHead); // ADD branch to spatial bin too
 
-                // Always aim toward a point further ahead along the *current* main path.
+                // target always moves ahead along the main path
                 rejoinTargetIndex = mainNodes.Count - 1 + rejoinIndexOffset;
                 rejoinTargetIndex = Mathf.Clamp(rejoinTargetIndex, 0, mainNodes.Count - 1);
 
@@ -85,14 +92,14 @@ public class TunnelPath : MonoBehaviour
                 if ((branchHead - rejoinTarget).sqrMagnitude < 6f)
                 {
                     mainNodes.AddRange(branchNodes);
+                    foreach (var n in branchNodes) AddNodeToBucket(n); // ensure merged branch nodes are also binned
+
                     branchNodes = null;
                     branchActive = false;
 
-                    // NEW: start cooldown to avoid immediate re-branch
                     lastRejoinNodeCount = mainNodes.Count;
                 }
             }
-
         }
     }
 
@@ -116,7 +123,6 @@ public class TunnelPath : MonoBehaviour
         return dir;
     }
 
-    // Steering for branch: diverge first, then gradually aim to rejoin
     private Vector2 ApplyBranchSteering(Vector2 dir)
     {
         Vector2 current = branchNodes[branchNodes.Count - 1];
@@ -129,58 +135,68 @@ public class TunnelPath : MonoBehaviour
 
         if (inDivergencePhase)
         {
-            // Phase 1: PUSH AWAY from main path
+            // push away from main path
             Vector2 away = (current - rejoinPoint).normalized;
             dir = (dir * 0.7f + away * 0.3f).normalized;
         }
         else if (branchTravel > minBranchLength)
         {
-            // Phase 2: RETURN smoothly toward rejoin point
-            Vector2 forward = Vector2.up; // world forward = +Z
+            // curve back toward main
+            Vector2 forward = Vector2.up;
             Vector2 toTarget = (rejoinPoint - current).normalized;
-
-            // Blend: mostly forward, slightly toward target
             dir = (forward * 0.65f + toTarget * 0.35f).normalized;
-
         }
         else
         {
-            // Middle segment: gentle random wandering, but reduced noise
-            if (Random.value < 0.05f) // reduced noise
+            if (Random.value < 0.05f)
                 dir = ApplyRandomTurnWithClamping(dir);
         }
 
         return dir.normalized;
     }
 
-
-
     public float DistanceSqToPath(Vector2 point)
     {
-        float best = DistanceSqToNodes(point, mainNodes);
+        Vector2Int baseKey = new Vector2Int(
+            Mathf.FloorToInt(point.x / bucketSize),
+            Mathf.FloorToInt(point.y / bucketSize)
+        );
 
-        if (branchActive && branchNodes != null)
+        float best = float.MaxValue;
+        for (int dx = -1; dx <= 1; dx++)
         {
-            float branchDist = DistanceSqToNodes(point, branchNodes);
-            if (branchDist < best) best = branchDist;
-        }
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                Vector2Int key = new Vector2Int(baseKey.x + dx, baseKey.y + dy);
+                if (!nodeBuckets.TryGetValue(key, out var list)) continue;
 
+                for (int i = 1; i < list.Count; i++)
+                {
+                    Vector2 a = list[i - 1];
+                    Vector2 b = list[i];
+                    Vector2 ab = b - a;
+                    float t = Mathf.Clamp01(Vector2.Dot(point - a, ab) / ab.sqrMagnitude);
+                    Vector2 closest = a + t * ab;
+                    float d = (point - closest).sqrMagnitude;
+                    if (d < best) best = d;
+                }
+            }
+        }
         return best;
     }
 
-    private float DistanceSqToNodes(Vector2 point, List<Vector2> nodes)
+    private void AddNodeToBucket(Vector2 pos)
     {
-        float best = float.MaxValue;
-        for (int i = 1; i < nodes.Count; i++)
+        Vector2Int key = new Vector2Int(
+            Mathf.FloorToInt(pos.x / bucketSize),
+            Mathf.FloorToInt(pos.y / bucketSize)
+        );
+
+        if (!nodeBuckets.TryGetValue(key, out var list))
         {
-            Vector2 a = nodes[i - 1];
-            Vector2 b = nodes[i];
-            Vector2 ab = b - a;
-            float t = Mathf.Clamp01(Vector2.Dot(point - a, ab) / ab.sqrMagnitude);
-            Vector2 closest = a + t * ab;
-            float d = (point - closest).sqrMagnitude;
-            if (d < best) best = d;
+            list = new List<Vector2>();
+            nodeBuckets[key] = list;
         }
-        return best;
+        list.Add(pos);
     }
 }

@@ -24,6 +24,9 @@ public class Chunk : MonoBehaviour
     public TunnelPath layer3;
     public GameObject connectionPrefab;
 
+    [SerializeField] int atlasSizeInTiles = 4; // 4x4, 8x8, etc.
+    [SerializeField] float uvPadding = 0.001f; // prevents bleeding
+
     void Start()
     {
         meshFilter = gameObject.AddComponent<MeshFilter>();
@@ -170,9 +173,7 @@ public class Chunk : MonoBehaviour
         var uvs = new List<Vector2>();
 
         // one triangle list per material
-        var submeshTris = new List<List<int>>();
-        for (int i = 0; i < materials.Length; i++)
-            submeshTris.Add(new List<int>());
+        List<int> triangles = new List<int>();
 
         // loop through all blocks in the chunk
         for (int x = 0; x < chunkSizeX; x++)
@@ -186,7 +187,7 @@ public class Chunk : MonoBehaviour
                     Vector3 pos = new Vector3(x, y, z);
 
                     // generate only visible faces
-                    AddCube(vertices, uvs, submeshTris, pos, x, y, z);
+                    AddCube(vertices, uvs, triangles, pos, x, y, z);
                 }
             }
         }
@@ -197,165 +198,126 @@ public class Chunk : MonoBehaviour
         mesh.subMeshCount = materials.Length;
 
         // assign triangles per material index
-        for (int i = 0; i < materials.Length; i++)
-            mesh.SetTriangles(submeshTris[i], i);
+        
+        mesh.SetTriangles(triangles, 0);
 
         mesh.RecalculateNormals();
         meshFilter.mesh = mesh;
     }
 
 
-    void AddCube(List<Vector3> verts,
-             List<Vector2> uvs,
-             List<List<int>> submeshTris,
-             Vector3 pos, int x, int y, int z)
+    void AddCube(
+    List<Vector3> verts,
+    List<Vector2> uvs,
+    List<int> tris,
+    Vector3 pos,
+    int x, int y, int z)
     {
-
         BlockType block = blocks[x, y, z];
-        int matIndex = GetMaterialIndex(block);
-        List<int> targetTris = submeshTris[matIndex];
+        Vector2[] faceUVs = GetFaceUVs(block);
+
+        void AddFace(Vector3[] faceVerts, int[] faceTris)
+        {
+            int startIndex = verts.Count;
+            verts.AddRange(faceVerts);
+
+            for (int i = 0; i < faceTris.Length; i++)
+                tris.Add(startIndex + faceTris[i]);
+
+            uvs.AddRange(faceUVs);
+        }
 
         // TOP
         if (y + 1 >= chunkSizeY || blocks[x, y + 1, z] == BlockType.Air)
         {
-            Vector3[] faceVerts = new Vector3[] {
-            pos + new Vector3(0,1,0),
-            pos + new Vector3(1,1,0),
-            pos + new Vector3(1,1,1),
-            pos + new Vector3(0,1,1)
-        };
-            int startIndex = verts.Count;
-            verts.AddRange(faceVerts);
-
-            targetTris.AddRange(new int[] {
-            startIndex, startIndex + 2, startIndex + 1,
-            startIndex, startIndex + 3, startIndex + 2
-        });
-
-            uvs.AddRange(new Vector2[] {
-            new Vector2(0,0),
-            new Vector2(1,0),
-            new Vector2(1,1),
-            new Vector2(0,1)
-        });
+            AddFace(
+                new Vector3[]
+                {
+                pos + new Vector3(0,1,0),
+                pos + new Vector3(1,1,0),
+                pos + new Vector3(1,1,1),
+                pos + new Vector3(0,1,1)
+                },
+                new int[] { 0, 2, 1, 0, 3, 2 }
+            );
         }
 
         // BOTTOM
         if (y - 1 < 0 || blocks[x, y - 1, z] == BlockType.Air)
         {
-            Vector3[] faceVerts = new Vector3[] {
+            AddFace(
+                new Vector3[]
+                {
                 pos + new Vector3(0,0,0),
                 pos + new Vector3(1,0,0),
                 pos + new Vector3(1,0,1),
                 pos + new Vector3(0,0,1)
-            };
-            int startIndex = verts.Count;
-            verts.AddRange(faceVerts);
-            targetTris.AddRange(new int[] { startIndex, startIndex + 1, startIndex + 2, startIndex, startIndex + 2, startIndex + 3 });
-
-            uvs.AddRange(new Vector2[] {
-                new Vector2(0,0),
-                new Vector2(1,0),
-                new Vector2(1,1),
-                new Vector2(0,1)
-            });
+                },
+                new int[] { 0, 1, 2, 0, 2, 3 }
+            );
         }
 
-        //RIGHT
-        if (x + 1 >= chunkSizeX || blocks[x+1, y, z] == BlockType.Air)
+        // RIGHT
+        if (x + 1 >= chunkSizeX || blocks[x + 1, y, z] == BlockType.Air)
         {
-            Vector3[] faceVerts = new Vector3[] {
+            AddFace(
+                new Vector3[]
+                {
                 pos + new Vector3(1,0,0),
                 pos + new Vector3(1,1,0),
                 pos + new Vector3(1,1,1),
                 pos + new Vector3(1,0,1)
-            };
-            int startIndex = verts.Count;
-            verts.AddRange(faceVerts);
-            targetTris.AddRange(new int[] { startIndex, startIndex + 1, startIndex + 2, startIndex, startIndex + 2, startIndex + 3 });
-
-            uvs.AddRange(new Vector2[] {
-                new Vector2(0,0),
-                new Vector2(1,0),
-                new Vector2(1,1),
-                new Vector2(0,1)
-            });
+                },
+                new int[] { 0, 1, 2, 0, 2, 3 }
+            );
         }
 
-        //LEFT
+        // LEFT
         if (x - 1 < 0 || blocks[x - 1, y, z] == BlockType.Air)
         {
-            Vector3[] faceVerts = new Vector3[] {
+            AddFace(
+                new Vector3[]
+                {
                 pos + new Vector3(0,0,0),
                 pos + new Vector3(0,1,0),
                 pos + new Vector3(0,1,1),
                 pos + new Vector3(0,0,1)
-            };
-            int startIndex = verts.Count;
-            verts.AddRange(faceVerts);
-            targetTris.AddRange(new int[] { startIndex, startIndex + 2, startIndex + 1, startIndex, startIndex + 3, startIndex + 2 });
-
-            uvs.AddRange(new Vector2[] {
-                new Vector2(0,0),
-                new Vector2(1,0),
-                new Vector2(1,1),
-                new Vector2(0,1)
-            });
+                },
+                new int[] { 0, 2, 1, 0, 3, 2 }
+            );
         }
 
-        //FRONT
+        // FRONT
         if (z + 1 >= chunkSizeZ || blocks[x, y, z + 1] == BlockType.Air)
         {
-            Vector3[] faceVerts = new Vector3[] {
+            AddFace(
+                new Vector3[]
+                {
                 pos + new Vector3(0,0,1),
                 pos + new Vector3(0,1,1),
                 pos + new Vector3(1,1,1),
                 pos + new Vector3(1,0,1)
-            };
-            int startIndex = verts.Count;
-            verts.AddRange(faceVerts);
-            targetTris.AddRange(new int[] { startIndex, startIndex + 2, startIndex + 1, startIndex, startIndex + 3, startIndex + 2 });
-
-            uvs.AddRange(new Vector2[] {
-                new Vector2(0,0),
-                new Vector2(1,0),
-                new Vector2(1,1),
-                new Vector2(0,1)
-            });
+                },
+                new int[] { 0, 2, 1, 0, 3, 2 }
+            );
         }
 
-        //BACK
+        // BACK
         if (z - 1 < 0 || blocks[x, y, z - 1] == BlockType.Air)
         {
-            Vector3[] faceVerts = new Vector3[] {
+            AddFace(
+                new Vector3[]
+                {
                 pos + new Vector3(0,0,0),
                 pos + new Vector3(0,1,0),
                 pos + new Vector3(1,1,0),
                 pos + new Vector3(1,0,0)
-            };
-            int startIndex = verts.Count;
-            verts.AddRange(faceVerts);
-            targetTris.AddRange(new int[] { startIndex, startIndex + 1, startIndex + 2, startIndex, startIndex + 2, startIndex + 3 });
-
-            uvs.AddRange(new Vector2[] {
-                new Vector2(0,0),
-                new Vector2(1,0),
-                new Vector2(1,1),
-                new Vector2(0,1)
-            });
+                },
+                new int[] { 0, 1, 2, 0, 2, 3 }
+            );
         }
     }
 
-    int GetMaterialIndex(BlockType type)
-    {
-        switch (type)
-        {
-            case BlockType.Dirt: return 0;
-            case BlockType.Grass: return 1;
-            case BlockType.Stone: return 2;
-            default: return 0; // fallback
-        }
-    }
 
     void SpawnTunnelConnectionObject(Vector3 worldPos)
     {
@@ -366,4 +328,29 @@ public class Chunk : MonoBehaviour
         geyser.transform.rotation = Quaternion.Euler(new Vector3(-90,0,0));
     }
 
+    Vector2[] GetFaceUVs(BlockType type)
+    {
+        int index = (int)type;
+
+        int x = index % atlasSizeInTiles;
+        int y = index / atlasSizeInTiles;
+
+        // flip Y because Unity UVs start bottom-left
+        y = atlasSizeInTiles - 1 - y;
+
+        float tileSize = 1f / atlasSizeInTiles;
+
+        float uMin = x * tileSize + uvPadding;
+        float vMin = y * tileSize + uvPadding;
+        float uMax = (x + 1) * tileSize - uvPadding;
+        float vMax = (y + 1) * tileSize - uvPadding;
+
+        return new Vector2[]
+        {
+        new Vector2(uMin, vMin),
+        new Vector2(uMax, vMin),
+        new Vector2(uMax, vMax),
+        new Vector2(uMin, vMax)
+        };
+    }
 }

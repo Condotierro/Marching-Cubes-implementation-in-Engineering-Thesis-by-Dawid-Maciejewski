@@ -5686,9 +5686,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderDistance: 2
   materials:
-  - {fileID: 2100000, guid: f73d68ec70e64cf438abb1b64c6f7d3c, type: 2}
-  - {fileID: 2100000, guid: d9ccceaa33026a346a88f214770b8202, type: 2}
-  - {fileID: 2100000, guid: 065c73df19794274cb606f8dfb4a2764, type: 2}
+  - {fileID: 2100000, guid: 51885b2bd72f5e54b98f06dc5ee74bd8, type: 2}
   scale: 0.01
   player: {fileID: 463392306}
   layer1: {fileID: 1585195667}

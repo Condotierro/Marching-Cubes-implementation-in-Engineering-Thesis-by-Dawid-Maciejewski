@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public class Chunk : MonoBehaviour
@@ -173,9 +174,11 @@ public class Chunk : MonoBehaviour
     }
 
 
+    static Stopwatch sw = new Stopwatch();
 
     public void GenerateMesh()
     {
+        sw.Restart();   
         Mesh mesh = new Mesh();
 
         // shared across all block faces
@@ -213,6 +216,9 @@ public class Chunk : MonoBehaviour
 
         mesh.RecalculateNormals();
         meshFilter.mesh = mesh;
+
+        sw.Stop();
+        RuntimeMetrics.Record("Chunk.GenerateMesh.ms", sw.Elapsed.TotalMilliseconds);
     }
 
 

@@ -56,6 +56,8 @@ public class Projectile : MonoBehaviour
             AudioSource.PlayClipAtPoint(explosionSound, hitPoint, explosionVolume);
         }
 
+        ShipController sc = FindAnyObjectByType<ShipController>();
+        sc.brokenBlocks++;
         Destroy(gameObject);
     }
 

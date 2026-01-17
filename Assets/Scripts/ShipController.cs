@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using TMPro;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -31,8 +33,10 @@ public class ShipController : MonoBehaviour
     public MapLayer currentMapLayer;
 
     [SerializeField] GameObject debrisPrefab;
-    [SerializeField] float debrisSpawnChance = 0.15f; // 15% of destroyed blocks spawn debris
+    [SerializeField] float debrisSpawnChance = 1f; // 15% of destroyed blocks spawn debris
     [SerializeField] float debrisForce = 8f;
+
+    [SerializeField] TextMeshProUGUI scoreText;
 
     public enum MapLayer
     {
@@ -63,6 +67,7 @@ public class ShipController : MonoBehaviour
     {
         if (hasSpaceUnderneath() == false) { return; }
         //implement raycast check if free space?
+        health.TakeDamage(-25f);
         switch (currentMapLayer)
         {
             case MapLayer.Top:
@@ -121,13 +126,13 @@ public class ShipController : MonoBehaviour
             results,
             proceduralLayer
         );
-        Debug.Log(count );
         return count > 0;
     }
 
     private void Update()
     {
         HandleShooting();
+        UpdateScore();
 
         if (Input.GetKeyDown(KeyCode.P)) 
         {
@@ -146,6 +151,14 @@ public class ShipController : MonoBehaviour
         }
     }
 
+    public int brokenBlocks = 0;
+    int crashes = 0;
+    private void UpdateScore()
+    {
+        float score = Mathf.Max(0,(this.gameObject.transform.position.z * 1f) + (brokenBlocks * 5) - (crashes * 20));
+        scoreText.text = "Score : " + score.ToString("0.00");
+    }
+
     void FixedUpdate()
     {
         HandleMovement();
@@ -154,24 +167,20 @@ public class ShipController : MonoBehaviour
 
     void HandleMovement()
     {
-        // Horizontal/forward movement
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
         Vector3 moveDir = (transform.forward * v) + (transform.right * h);
 
         rb.AddForce(moveDir.normalized * acceleration, ForceMode.Acceleration);
 
-        // Cap speed
         if (rb.velocity.magnitude > maxSpeed)
             rb.velocity = rb.velocity.normalized * maxSpeed;
 
-        // Damping when no input
         if (moveDir.magnitude < 0.1f)
         {
             rb.velocity = Vector3.Lerp(rb.velocity, new Vector3(0, rb.velocity.y, 0), damping * Time.fixedDeltaTime);
         }
 
-        // -------- Vertical Layer Handling --------
         float targetY = GetLayerHeight(currentMapLayer);
         float newY = Mathf.Lerp(rb.position.y, targetY, verticalSmooth * Time.fixedDeltaTime);
 
@@ -221,7 +230,7 @@ public class ShipController : MonoBehaviour
         int cx = Mathf.FloorToInt(localPos.x);
         int cy = Mathf.FloorToInt(localPos.y);
         int cz = Mathf.FloorToInt(localPos.z);
-
+        crashes++;
         for (int x = -radius; x <= radius; x++)
         {
             for (int y = -radius; y <= radius; y++)
@@ -260,10 +269,18 @@ public class ShipController : MonoBehaviour
         }
 
         health.TakeDamage(5f);
-
+        sw.Restart();
         chunk.GenerateMesh();
+        sw.Stop();
+        RuntimeMetrics.Record("Chunk.GenerateMesh.ms", sw.Elapsed.TotalMilliseconds);
+
+        sw.Restart();
         chunk.UpdateCollider();
+        sw.Stop();
+        RuntimeMetrics.Record("Chunk.UpdateCollider.ms", sw.Elapsed.TotalMilliseconds);
+
     }
+    static Stopwatch sw = new Stopwatch();
 
     void SpawnVoxelDebris(Chunk chunk, int bx, int by, int bz)
     {

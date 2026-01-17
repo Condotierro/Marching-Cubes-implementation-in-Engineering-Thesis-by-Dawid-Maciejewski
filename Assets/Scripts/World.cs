@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -45,7 +46,8 @@ public class World : MonoBehaviour
         //
         //RuntimeMetrics.Record("Memory.Process.WorkingSet.Bytes", processRam);
 
-        RuntimeMetrics.Record("FrameTime.ms", Time.deltaTime * 1000f);
+        //RuntimeMetrics.Record("FrameTime.ms", Time.deltaTime * 1000f);
+        RuntimeMetrics.Record("Render.Batches", UnityStats.batches);
     }
 
     void UpdateChunks()

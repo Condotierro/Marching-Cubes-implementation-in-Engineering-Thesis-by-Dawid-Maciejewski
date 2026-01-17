@@ -65,11 +65,16 @@ public class Chunk : MonoBehaviour
     }
     public void UpdateCollider()
     {
+        sw.Restart();
         if (meshCollider == null)
             meshCollider = gameObject.AddComponent<MeshCollider>();
 
         meshCollider.sharedMesh = null; 
-        meshCollider.sharedMesh = meshFilter.mesh; 
+        meshCollider.sharedMesh = meshFilter.mesh;
+
+        
+        sw.Stop();
+        RuntimeMetrics.Record("Chunk.GenerateMesh.ms", sw.Elapsed.TotalMilliseconds);
     }
 
     public void ModifyBlock(int x, int y, int z, BlockType newType)
@@ -178,7 +183,7 @@ public class Chunk : MonoBehaviour
 
     public void GenerateMesh()
     {
-        sw.Restart();   
+        
         Mesh mesh = new Mesh();
 
         // shared across all block faces
@@ -216,9 +221,7 @@ public class Chunk : MonoBehaviour
 
         mesh.RecalculateNormals();
         meshFilter.mesh = mesh;
-
-        sw.Stop();
-        RuntimeMetrics.Record("Chunk.GenerateMesh.ms", sw.Elapsed.TotalMilliseconds);
+        
     }
 
 

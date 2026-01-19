@@ -752,7 +752,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!108 &705507994
 Light:
   m_ObjectHideFlags: 0
@@ -1287,7 +1287,7 @@ GameObject:
   - component: {fileID: 1204471553}
   - component: {fileID: 1204471555}
   m_Layer: 5
-  m_Name: Rest
+  m_Name: ResetText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

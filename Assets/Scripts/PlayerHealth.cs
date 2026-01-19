@@ -27,4 +27,9 @@ public class PlayerHealth : MonoBehaviour
     {
         TakeDamage(1 * Time.deltaTime);
     }
+
+    public bool IsAlive()
+    {
+        if(currentHealth > 0) { return true; }else return false;
+    }
 }

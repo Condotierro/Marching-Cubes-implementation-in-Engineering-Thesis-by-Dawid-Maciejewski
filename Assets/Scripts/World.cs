@@ -58,7 +58,7 @@ public class World : MonoBehaviour
         //RuntimeMetrics.Record("Memory.Process.WorkingSet.Bytes", processRam);
 
         //RuntimeMetrics.Record("FrameTime.ms", Time.deltaTime * 1000f);
-        RuntimeMetrics.Record("Render.Batches", UnityStats.batches);
+        //RuntimeMetrics.Record("Render.Batches", UnityStats.batches);
     }
 
     void UpdateChunks()

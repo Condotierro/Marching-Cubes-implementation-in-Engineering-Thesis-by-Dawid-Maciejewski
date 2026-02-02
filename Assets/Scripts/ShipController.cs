@@ -174,10 +174,11 @@ public class ShipController : MonoBehaviour
 
     public int brokenBlocks = 0;
     int crashes = 0;
-    public int collected = 0;
+    public int CollectedItemsScore = 0;
     private void UpdateScore()
     {
-        float score = Mathf.Max(0,(this.gameObject.transform.position.z * 1f) + (brokenBlocks * 5) - (crashes * 20)) + collected;
+        float travelledDistance = this.gameObject.transform.position.z;
+        float score = Mathf.Max(0,(travelledDistance * 1) + (brokenBlocks * 5) - (crashes * 20)) + CollectedItemsScore;
         scoreText.text = "Score : " + score.ToString("0.00");
     }
 

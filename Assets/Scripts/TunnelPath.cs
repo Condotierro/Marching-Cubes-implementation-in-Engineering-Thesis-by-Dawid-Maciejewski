@@ -53,7 +53,6 @@ public class TunnelPath : MonoBehaviour
             // accumulate branch probability
             branchAccumulator += branchProbabilityIncrease;
 
-            // --- check if we should start a new branch
             if (!branchActive
                 && branchAccumulator >= Random.value
                 && mainNodes.Count > rejoinIndexOffset * 2
@@ -69,13 +68,13 @@ public class TunnelPath : MonoBehaviour
                 rejoinTargetIndex = Mathf.Clamp(mainNodes.Count - 1 + rejoinIndexOffset, 0, mainNodes.Count - 1);
             }
 
-            // --- grow main path
+            // grow main path
             direction = ApplyRandomTurnWithClamping(direction);
             head += direction * stepLength;
             mainNodes.Add(head);
             AddNodeToBucket(head); // ADD to spatial bin
 
-            // --- grow branch path if active
+            // grow branch path if active
             if (branchActive)
             {
                 branchDir = ApplyBranchSteering(branchDir);

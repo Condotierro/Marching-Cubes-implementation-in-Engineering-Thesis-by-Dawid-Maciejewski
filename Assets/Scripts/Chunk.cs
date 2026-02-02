@@ -127,7 +127,7 @@ public class Chunk : MonoBehaviour
                 
                 if (upperOverlap)
                 {
-                    validPoses.Add(new Vector3(wx + 0.5f, 5f, wz + 0.5f));
+                    validPoses.Add(new Vector3(wx + 0.5f, 2f, wz + 0.5f));
                 }
                 else if (lowerOverlap)
                 {

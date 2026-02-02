@@ -30,7 +30,7 @@ public class Collectible : MonoBehaviour
     {
         if(type == 0)
         {
-            shipController.collected += value;
+            shipController.CollectedItemsScore += value;
         }
         else
         {

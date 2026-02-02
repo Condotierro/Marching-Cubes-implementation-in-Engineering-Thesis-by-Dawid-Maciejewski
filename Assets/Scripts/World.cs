@@ -29,36 +29,37 @@ public class World : MonoBehaviour
             Collectible c = g.GetComponent<Collectible>();
             c.initialize(player.gameObject.GetComponent<ShipController>());
         }
+
+        UnityEngine.Random.seed = 4;
     }
 
     void Update()
     {
-        // ----- Managed heap (C# / GC) -----
-        //long managedBefore = GC.GetTotalMemory(false);
+        long managedBefore = GC.GetTotalMemory(false);
 
         UpdateChunks();
 
-        //long managedAfter = GC.GetTotalMemory(false);
-        //long managedDelta = managedAfter - managedBefore;
-        //
-        //// ----- Unity native memory (engine allocators) -----
-        //long unityAllocated = Profiler.GetTotalAllocatedMemoryLong();
-        //long unityReserved = Profiler.GetTotalReservedMemoryLong();
-        //
-        //// ----- OS-level physical RAM (process working set) -----
-        //long processRam = Process.GetCurrentProcess().WorkingSet64;
-        //
-        //// ----- Record metrics (BYTES) -----
-        //RuntimeMetrics.Record("Memory.Managed.Delta.Bytes", managedDelta);
-        //RuntimeMetrics.Record("Memory.Managed.Total.Bytes", managedAfter);
-        //
-        //RuntimeMetrics.Record("Memory.Unity.Allocated.Bytes", unityAllocated);
-        //RuntimeMetrics.Record("Memory.Unity.Reserved.Bytes", unityReserved);
-        //
-        //RuntimeMetrics.Record("Memory.Process.WorkingSet.Bytes", processRam);
+        long managedAfter = GC.GetTotalMemory(false);
+        long managedDelta = managedAfter - managedBefore;
+        
+        //engine allocators 
+        long unityAllocated = Profiler.GetTotalAllocatedMemoryLong();
+        long unityReserved = Profiler.GetTotalReservedMemoryLong();
+        
+        //OS-level physical RAM (process working set) 
+        long processRam = Process.GetCurrentProcess().WorkingSet64;
+        
+        //Record metrics (BYTES) 
+        RuntimeMetrics.Record("Memory.Managed.Delta.Bytes", managedDelta);
+        RuntimeMetrics.Record("Memory.Managed.Total.Bytes", managedAfter);
+        
+        RuntimeMetrics.Record("Memory.Unity.Allocated.Bytes", unityAllocated);
+        RuntimeMetrics.Record("Memory.Unity.Reserved.Bytes", unityReserved);
+        
+        RuntimeMetrics.Record("Memory.Process.WorkingSet.Bytes", processRam);
 
-        //RuntimeMetrics.Record("FrameTime.ms", Time.deltaTime * 1000f);
-        //RuntimeMetrics.Record("Render.Batches", UnityStats.batches);
+        RuntimeMetrics.Record("FrameTime.ms", Time.deltaTime * 1000f);
+        RuntimeMetrics.Record("Render.Batches", UnityStats.batches);
     }
 
     void UpdateChunks()
@@ -112,7 +113,6 @@ public class World : MonoBehaviour
 
     void CreateChunk(int cx, int cz)
     {
-        // Create the chunk GameObject
         GameObject chunkObj = new GameObject($"Chunk_{cx}_{cz}");
         chunkObj.transform.parent = this.transform;
 

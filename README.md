@@ -4,4 +4,4 @@ Environment based on a Video Game Concept"
 It involves a simple Game Demo implementing marching cubes algorithm, and voxel terrain generation.
 
 Developed by Dawid Maciejewski.
-Game Concept by Rafał Szrajber.
+Game Concept by dr hab. sztuki in˙z. arch. Rafał Szrajber, prof. uczelni

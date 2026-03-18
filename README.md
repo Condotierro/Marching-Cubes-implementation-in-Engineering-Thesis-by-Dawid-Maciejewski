@@ -1,6 +1,3 @@
-
-# 📘 Project Documentation
-
 ### Procedural Voxel Tunnel System with Gameplay Integration
 
 ## 1. Overview
